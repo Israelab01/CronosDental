@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Client extends Model
 {
     use HasFactory;
-    
+
+    // app/Models/Client.php
     protected $fillable = [
         'name',
         'email',
@@ -18,4 +19,5 @@ class Client extends Model
         'medical_history',
         'allergies'
     ];
+
 }
