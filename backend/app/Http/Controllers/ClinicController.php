@@ -8,61 +8,57 @@ use Illuminate\Support\Facades\Validator;
 
 class ClinicController extends Controller
 {
-    // Listar todas las clínicas
-    public function index()
+    // Obtener todas las clínicas (con búsqueda opcional)
+    public function index(Request $request)
     {
-        return response()->json(Clinic::all());
+        $query = Clinic::query();
+        
+        if ($request->has('search')) {
+            $query->where('nombre', 'like', '%' . $request->search . '%');
+        }
+
+        return $query->get();
     }
 
-    // Crear nueva clínica
+    // Crear clínica
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
             'email' => 'required|email|unique:clinics,email',
             'telefono' => 'required|string|max:20',
-            'direccion' => 'required|string'
+            'direccion' => 'required|string',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $clinic = Clinic::create($request->all());
-        return response()->json($clinic, 201);
+        return Clinic::create($request->all());
     }
 
     // Actualizar clínica
-    public function update(Request $request, $id)
+    public function update(Request $request, Clinic $clinic)
     {
-        $clinic = Clinic::findOrFail($id);
-
         $validator = Validator::make($request->all(), [
             'nombre' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:clinics,email,'.$clinic->id,
+            'email' => 'sometimes|email|unique:clinics,email,' . $clinic->id,
             'telefono' => 'sometimes|string|max:20',
-            'direccion' => 'sometimes|string'
+            'direccion' => 'sometimes|string',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $clinic->update($request->all());
-        return response()->json($clinic);
+        return $clinic;
     }
 
     // Eliminar clínica
-    public function destroy($id)
+    public function destroy(Clinic $clinic)
     {
-        $clinic = Clinic::findOrFail($id);
         $clinic->delete();
-        return response()->json([
-            'message' => 'Clínica eliminada correctamente'
-        ]);
+        return response()->json(['message' => 'Clínica eliminada']);
     }
 }

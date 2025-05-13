@@ -10,9 +10,9 @@ class Clinic extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre',
-        'email',
-        'telefono',
+        'nombre', 
+        'email', 
+        'telefono', 
         'direccion'
     ];
 }
