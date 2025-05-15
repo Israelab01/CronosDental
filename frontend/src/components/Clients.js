@@ -1,13 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import bgImg from "../assets/bg.png";
 import "./Clients.css";
 
 const Clients = () => {
-    // Estado para el listado de clínicas (puedes cargarlo del backend si quieres)
     const [clients, setClients] = useState([]);
+    const [searchClinic, setSearchClinic] = useState("");
+    const [foundClient, setFoundClient] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editFields, setEditFields] = useState({
+        id: null,
+        nombre: "",
+        email: "",
+        telefono: "",
+        direccion: "",
+    });
 
-    // Estado para añadir clínica
     const [newClient, setNewClient] = useState({
         nombre: "",
         email: "",
@@ -15,91 +23,132 @@ const Clients = () => {
         direccion: "",
     });
 
-    // Estado para búsqueda y edición (frontend)
-    const [searchClinic, setSearchClinic] = useState("");
-    const [foundClient, setFoundClient] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [editFields, setEditFields] = useState({
-        nombre: "",
-        email: "",
-        telefono: "",
-        direccion: "",
-    });
+    // Cargar clínicas al iniciar
+    useEffect(() => {
+        const loadClinics = async () => {
+            try {
+                const response = await axios.get(
+                    "http://localhost:8000/api/clinics"
+                );
+                setClients(response.data);
+            } catch (error) {
+                alert("Error cargando clínicas: " + error.message);
+            }
+        };
+        loadClinics();
+    }, []);
 
-    // Añadir clínica (POST al backend)
+    // Añadir clínica
     const handleAddClient = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:8000/api/clinics", newClient);
-            alert("Clínica añadida correctamente");
+            const response = await axios.post(
+                "http://localhost:8000/api/clinics",
+                newClient
+            );
             setClients([...clients, response.data]);
-            setNewClient({ nombre: "", email: "", telefono: "", direccion: "" });
+            setNewClient({
+                nombre: "",
+                email: "",
+                telefono: "",
+                direccion: "",
+            });
+            alert("Clínica añadida correctamente");
         } catch (error) {
             alert(
                 "Error al añadir clínica: " +
-                    (error.response
-                        ? JSON.stringify(error.response.data.errors)
-                        : error.message)
+                    (error.response?.data?.errors || error.message)
             );
         }
     };
 
-    // Buscar clínica (solo frontend)
-    const handleSearchSubmit = (e) => {
+    // Buscar clínica
+    const handleSearchSubmit = async (e) => {
         e.preventDefault();
-        const client = clients.find(
-            (c) => c.nombre.toLowerCase() === searchClinic.trim().toLowerCase()
-        );
-        setFoundClient(client || null);
-        setIsEditing(false);
-    };
-
-    // Eliminar clínica (solo frontend, pendiente de conectar con backend)
-    const handleDelete = () => {
-        if (
-            foundClient &&
-            window.confirm("¿Seguro que quieres eliminar esta clínica?")
-        ) {
-            setClients(
-                clients.filter(
-                    (c) =>
-                        c.nombre.toLowerCase() !==
-                        foundClient.nombre.toLowerCase()
-                )
+        try {
+            const response = await axios.get(
+                "http://localhost:8000/api/clinics",
+                {
+                    params: { search: searchClinic },
+                }
             );
-            setFoundClient(null);
-            setSearchClinic("");
+            setFoundClient(response.data[0] || null);
+            setIsEditing(false);
+            if (response.data[0]) setEditFields(response.data[0]);
+        } catch (error) {
+            alert("Error en la búsqueda: " + error.message);
         }
     };
 
-    // Editar clínica (solo frontend, pendiente de conectar con backend)
+    // Eliminar clínica
+    const handleDelete = async () => {
+        if (!foundClient) return;
+
+        if (window.confirm("¿Seguro que quieres eliminar esta clínica?")) {
+            try {
+                await axios.delete(
+                    `http://localhost:8000/api/clinics/${foundClient.id}`
+                );
+                setClients(clients.filter((c) => c.id !== foundClient.id));
+                setFoundClient(null);
+                setSearchClinic("");
+                alert("Clínica eliminada correctamente");
+            } catch (error) {
+                alert(
+                    "Error al eliminar: " +
+                        (error.response?.data?.message || error.message)
+                );
+            }
+        }
+    };
+
+    // Editar clínica
     const handleEdit = () => {
         setIsEditing(true);
         setEditFields(foundClient);
     };
 
     const handleEditFieldChange = (e) => {
-        const { name, value } = e.target;
-        setEditFields({ ...editFields, [name]: value });
+        setEditFields({ ...editFields, [e.target.name]: e.target.value });
     };
 
-    const handleSave = (e) => {
+    // GUARDAR CAMBIOS DE EDICIÓN (¡NO ANIDES FORMULARIOS!)
+    const handleSave = async (e) => {
         e.preventDefault();
-        setClients(
-            clients.map((c) =>
-                c.nombre === foundClient.nombre ? editFields : c
-            )
-        );
-        setFoundClient(editFields);
-        setIsEditing(false);
+        try {
+            if (!editFields.id) {
+                alert("Error: No hay ID de clínica.");
+                return;
+            }
+
+            console.log("Datos a enviar:", editFields);
+
+            const response = await axios.put(
+                `http://localhost:8000/api/clinics/${editFields.id}`,
+                {
+                    nombre: editFields.nombre,
+                    email: editFields.email,
+                    telefono: editFields.telefono,
+                    direccion: editFields.direccion,
+                }
+            );
+
+            // Recarga el listado completo de clínicas desde el backend
+            const updatedClinics = await axios.get("http://localhost:8000/api/clinics");
+            setClients(updatedClinics.data);
+
+            setFoundClient(response.data);
+            setIsEditing(false);
+            alert("¡Clínica actualizada!");
+        } catch (error) {
+            alert("Error: " + (error.response?.data?.errors || error.message));
+        }
     };
 
     return (
         <div
             className="clients-bg"
-            style={{
-                background: `url(${bgImg}) center/cover no-repeat`,
-            }}
+            style={{ background: `url(${bgImg}) center/cover no-repeat` }}
         >
             <div className="sidebar">
                 <div className="sidebar-logo">
@@ -121,8 +170,11 @@ const Clients = () => {
             </div>
 
             <div className="clients-panels">
-                {/* Buscar clínica */}
-                <form className="panel search-panel" onSubmit={handleSearchSubmit}>
+                {/* Panel de búsqueda */}
+                <form
+                    className="panel search-panel"
+                    onSubmit={handleSearchSubmit}
+                >
                     <div className="panel-header blue">
                         Buscar cliente por nombre de la clínica
                     </div>
@@ -145,7 +197,6 @@ const Clients = () => {
                             onChange={(e) => setSearchClinic(e.target.value)}
                             className="input"
                             required
-                            autoFocus
                         />
                         <button className="add-btn" type="submit">
                             Buscar
@@ -153,15 +204,43 @@ const Clients = () => {
 
                         {foundClient && !isEditing && (
                             <div className="search-result">
-                                <input type="text" value={foundClient.nombre} className="input" disabled />
-                                <input type="email" value={foundClient.email} className="input" disabled />
-                                <input type="tel" value={foundClient.telefono} className="input" disabled />
-                                <input type="text" value={foundClient.direccion} className="input" disabled />
+                                <input
+                                    type="text"
+                                    value={foundClient.nombre}
+                                    className="input"
+                                    disabled
+                                />
+                                <input
+                                    type="email"
+                                    value={foundClient.email}
+                                    className="input"
+                                    disabled
+                                />
+                                <input
+                                    type="tel"
+                                    value={foundClient.telefono}
+                                    className="input"
+                                    disabled
+                                />
+                                <input
+                                    type="text"
+                                    value={foundClient.direccion}
+                                    className="input"
+                                    disabled
+                                />
                                 <div className="btn-row">
-                                    <button type="button" className="edit-btn" onClick={handleEdit}>
+                                    <button
+                                        type="button"
+                                        className="edit-btn"
+                                        onClick={handleEdit}
+                                    >
                                         Editar
                                     </button>
-                                    <button type="button" className="delete-btn" onClick={handleDelete}>
+                                    <button
+                                        type="button"
+                                        className="delete-btn"
+                                        onClick={handleDelete}
+                                    >
                                         Eliminar
                                     </button>
                                 </div>
@@ -170,6 +249,7 @@ const Clients = () => {
 
                         {foundClient && isEditing && (
                             <div className="search-result">
+                                {/* ¡NO FORM! */}
                                 <input
                                     type="text"
                                     name="nombre"
@@ -203,10 +283,18 @@ const Clients = () => {
                                     required
                                 />
                                 <div className="btn-row">
-                                    <button type="submit" className="add-btn" onClick={handleSave}>
+                                    <button
+                                        type="button"
+                                        className="add-btn"
+                                        onClick={handleSave}
+                                    >
                                         Guardar
                                     </button>
-                                    <button type="button" className="delete-btn" onClick={() => setIsEditing(false)}>
+                                    <button
+                                        type="button"
+                                        className="delete-btn"
+                                        onClick={() => setIsEditing(false)}
+                                    >
                                         Cancelar
                                     </button>
                                 </div>
@@ -221,9 +309,11 @@ const Clients = () => {
                     </div>
                 </form>
 
-                {/* Añadir clínica */}
+                {/* Panel de añadir clínica */}
                 <form className="panel add-panel" onSubmit={handleAddClient}>
-                    <div className="panel-header blue">Añadir nueva clínica</div>
+                    <div className="panel-header blue">
+                        Añadir nueva clínica
+                    </div>
                     <div className="panel-body">
                         <input
                             type="text"
@@ -231,7 +321,10 @@ const Clients = () => {
                             placeholder="Nombre de la clínica"
                             value={newClient.nombre}
                             onChange={(e) =>
-                                setNewClient({ ...newClient, nombre: e.target.value })
+                                setNewClient({
+                                    ...newClient,
+                                    nombre: e.target.value,
+                                })
                             }
                             className="input"
                             required
@@ -242,7 +335,10 @@ const Clients = () => {
                             placeholder="Email"
                             value={newClient.email}
                             onChange={(e) =>
-                                setNewClient({ ...newClient, email: e.target.value })
+                                setNewClient({
+                                    ...newClient,
+                                    email: e.target.value,
+                                })
                             }
                             className="input"
                             required
@@ -253,7 +349,10 @@ const Clients = () => {
                             placeholder="Teléfono"
                             value={newClient.telefono}
                             onChange={(e) =>
-                                setNewClient({ ...newClient, telefono: e.target.value })
+                                setNewClient({
+                                    ...newClient,
+                                    telefono: e.target.value,
+                                })
                             }
                             className="input"
                             required
@@ -264,7 +363,10 @@ const Clients = () => {
                             placeholder="Dirección"
                             value={newClient.direccion}
                             onChange={(e) =>
-                                setNewClient({ ...newClient, direccion: e.target.value })
+                                setNewClient({
+                                    ...newClient,
+                                    direccion: e.target.value,
+                                })
                             }
                             className="input"
                             required

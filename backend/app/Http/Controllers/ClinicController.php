@@ -8,19 +8,15 @@ use Illuminate\Support\Facades\Validator;
 
 class ClinicController extends Controller
 {
-    // Obtener todas las clínicas (con búsqueda opcional)
     public function index(Request $request)
     {
         $query = Clinic::query();
-        
         if ($request->has('search')) {
             $query->where('nombre', 'like', '%' . $request->search . '%');
         }
-
         return $query->get();
     }
 
-    // Crear clínica
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -37,25 +33,31 @@ class ClinicController extends Controller
         return Clinic::create($request->all());
     }
 
-    // Actualizar clínica
-    public function update(Request $request, Clinic $clinic)
-    {
-        $validator = Validator::make($request->all(), [
-            'nombre' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:clinics,email,' . $clinic->id,
-            'telefono' => 'sometimes|string|max:20',
-            'direccion' => 'sometimes|string',
-        ]);
+ public function update(Request $request, $id)
+{
+    $clinic = Clinic::findOrFail($id);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+    $request->validate([
+        'nombre' => 'required|string|max:255',
+        'email' => 'required|email|unique:clinics,email,' . $clinic->id,
+        'telefono' => 'required|string|max:20',
+        'direccion' => 'required|string',
+    ]);
 
-        $clinic->update($request->all());
-        return $clinic;
-    }
+    $clinic->nombre = $request->nombre;
+    $clinic->email = $request->email;
+    $clinic->telefono = $request->telefono;
+    $clinic->direccion = $request->direccion;
 
-    // Eliminar clínica
+    $clinic->save();
+
+    return response()->json($clinic);
+}
+
+
+
+
+
     public function destroy(Clinic $clinic)
     {
         $clinic->delete();
