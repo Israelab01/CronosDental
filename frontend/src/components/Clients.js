@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import bgImg from "../assets/bg.png";
+import logo from "../assets/logo.png"; // Se importa el logo desde la ruta correcta
 import "./Clients.css";
 
 const Clients = () => {
@@ -83,7 +84,6 @@ const Clients = () => {
     // Eliminar clínica
     const handleDelete = async () => {
         if (!foundClient) return;
-
         if (window.confirm("¿Seguro que quieres eliminar esta clínica?")) {
             try {
                 await axios.delete(
@@ -112,7 +112,7 @@ const Clients = () => {
         setEditFields({ ...editFields, [e.target.name]: e.target.value });
     };
 
-    // GUARDAR CAMBIOS DE EDICIÓN (¡NO ANIDES FORMULARIOS!)
+    // Guardar cambios de edición (sin anidar formularios)
     const handleSave = async (e) => {
         e.preventDefault();
         try {
@@ -120,9 +120,6 @@ const Clients = () => {
                 alert("Error: No hay ID de clínica.");
                 return;
             }
-
-            console.log("Datos a enviar:", editFields);
-
             const response = await axios.put(
                 `http://localhost:8000/api/clinics/${editFields.id}`,
                 {
@@ -132,11 +129,11 @@ const Clients = () => {
                     direccion: editFields.direccion,
                 }
             );
-
             // Recarga el listado completo de clínicas desde el backend
-            const updatedClinics = await axios.get("http://localhost:8000/api/clinics");
+            const updatedClinics = await axios.get(
+                "http://localhost:8000/api/clinics"
+            );
             setClients(updatedClinics.data);
-
             setFoundClient(response.data);
             setIsEditing(false);
             alert("¡Clínica actualizada!");
@@ -152,7 +149,7 @@ const Clients = () => {
         >
             <div className="sidebar">
                 <div className="sidebar-logo">
-                    <img src="/assets/logo.png" alt="Logo" />
+                    <img src={logo} alt="Logo" />
                 </div>
                 <ul className="sidebar-menu">
                     <li>Dashboard</li>
@@ -164,7 +161,7 @@ const Clients = () => {
 
             <div className="topbar">
                 <span>Dashboard</span>
-                <span className="active">Clientes</span>
+                <span>Clientes</span>
                 <span>Pedidos</span>
                 <span>Cerrar sesión</span>
             </div>
@@ -249,7 +246,6 @@ const Clients = () => {
 
                         {foundClient && isEditing && (
                             <div className="search-result">
-                                {/* ¡NO FORM! */}
                                 <input
                                     type="text"
                                     name="nombre"
