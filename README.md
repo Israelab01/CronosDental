@@ -1,3 +1,4 @@
+
 # Cronos Dental – Dental Clinic Management System
 
 Sistema web para la gestión de clínicas dentales.
@@ -7,34 +8,34 @@ Sistema web para la gestión de clínicas dentales.
 ## 📂 Branches Overview
 
 - **login**:  
-  - *Frontend* of the login page only.  
-  - No backend functionality for login yet.
+  - *Frontend* y *backend* de la página de login.
+  - Permite iniciar sesión de clientes.  
+  - **Nota:** La opción de cerrar sesión aún no está disponible.
 
 - **register**:  
-  - *Frontend and backend* for user registration.
-  - *Frontend* for login (no backend).
+  - *Frontend y backend* para el registro de clientes.
+  - *Frontend* para login.
 
 - **clientes**:  
-  - Fully functional *CRUD* for clinics (frontend and backend).
-  - To test the clinics management, use this branch.
+  - *CRUD* completo de clínicas (frontend y backend).
+  - Para probar la gestión de clínicas, usa esta rama.
 
 ---
 
-## 🚀 How to Run Each Part
+## 🚀 Cómo ejecutar cada parte
 
-### 1. **Clone the repository**
+### 1. **Clona el repositorio**
 
 git clone https://github.com/your-username/cronos-dental.git
 cd cronos-dental
 
 ---
 
-
-### 2. **To test the clinics CRUD**
-> **Switch to the `feature/clientes` branch:**
-
+### 2. **Para probar el CRUD de clínicas**
+> **Cámbiate a la rama `feature/clientes`:**
 
 git checkout clientes
+
 
 #### **Backend setup**
 
@@ -43,10 +44,13 @@ cp .env.example .env
 composer install
 php artisan key:generate
 
-#### **Set your DB credentials in .env**
+
+
+#### **Configura tu base de datos en `.env`**
 
 php artisan migrate --seed
 php artisan serve --port=8000
+
 
 #### **Frontend setup**
 
@@ -54,36 +58,83 @@ cd ../frontend
 npm install
 npm start
 
-- Open [http://localhost:3000](http://localhost:3000) to use the clinics management system.
-- You can add, search, edit, and delete clinics.
+
+- Abre [http://localhost:3000](http://localhost:3000) para usar la gestión de clínicas.
+- Puedes añadir, buscar, editar y eliminar clínicas.
+
+#### **Ejecutar tests de Backend para Clínicas**
+
+Desde la carpeta `backend`:
+
+php artisan test --filter=ClinicApiTest
+
+
+#### **Ejecutar tests de Frontend para Clínicas**
+
+Desde la carpeta `frontend`:
+
+npm test Clients.test.js
 
 ---
 
-### 3. **To test only the login page**
-> **Switch to the `feature/login` branch:**
-
+### 3. **Para probar login (frontend y backend)**
+> **Cámbiate a la rama `feature/login`:**
 
 git checkout feature/login
 
-- Only the *frontend* of the login page is available. No backend functionality.
+
+- Login funcional para clientes, con backend y frontend.
+- Permite iniciar sesión.
+- **Nota:** La opción de cerrar sesión aún no está disponible.
+
+#### **Ejecutar tests de Backend para Login**
+
+Desde la carpeta `backend`:
+
+php artisan test --filter=LoginApiTest
+
+
+#### **Ejecutar tests de Frontend para Login**
+
+Desde la carpeta `frontend`:
+
+npm test Login.test.js
 
 ---
 
-### 4. **To test registration**
-> **Switch to the `feature/register` branch:**
+### 4. **Para probar el registro**
+> **Cámbiate a la rama `feature/register`:**
 
 git checkout feature/register
-- Registration: *frontend and backend*.
-- Login: *frontend only*.
+
+
+- Registro: *frontend y backend*.
+- Login: *frontend*.
+
+#### **Ejecutar tests de Backend para Registro**
+
+Desde la carpeta `backend`:
+
+php artisan test --filter=RegisterApiTest
+
+
+#### **Ejecutar tests de Frontend para Registro**
+
+Desde la carpeta `frontend`:
+
+npm test Register.test.js
+
 
 ---
 
-## 📝 Notes
+## 📝 Notas
 
-- Backend API runs at `http://localhost:8000/api/`
-- Frontend runs at `http://localhost:3000/`
-- Database: MySQL
-- For the clinics CRUD, use the `feature/clientes` branch.
+- La API del backend corre en `http://localhost:8000/api/`
+- El frontend corre en `http://localhost:3000/`
+- Base de datos: MySQL
+- Para el CRUD de clínicas, usa la rama `feature/clientes`.
+- Para los tests de registro, usa la rama `feature/register`.
+- Para login funcional (frontend y backend), usa la rama `feature/login`.
 
 ---
 
@@ -92,6 +143,3 @@ git checkout feature/register
 MIT License
 
 ---
-
-> For questions or issues, please open an issue on GitHub.
-
