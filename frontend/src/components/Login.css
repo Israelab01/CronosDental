@@ -1,10 +1,10 @@
-.register-container {
+.login-container {
     display: flex;
     min-height: 100vh;
     font-family: "Inter", Arial, sans-serif;
 }
 
-.register-left {
+.login-left {
     background: #25469e;
     color: #fff;
     flex: 1;
@@ -14,22 +14,22 @@
     justify-content: center;
 }
 
-.register-title {
+.login-title {
     font-size: 3rem;
     font-weight: 700;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
 
-.register-logo img {
-    width: 220px;
-    height: 220px;
+.login-logo img {
+    width: 260px;
+    height: 260px;
     object-fit: cover;
     border-radius: 50%;
     border: 6px solid #fff;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.register-right {
+.login-right {
     flex: 1;
     background: #fff;
     display: flex;
@@ -38,52 +38,79 @@
     align-items: center;
 }
 
-.register-heading {
-    font-size: 2.5rem;
+.login-heading {
+    font-size: 2.8rem;
     font-weight: 800;
     margin-bottom: 0.5rem;
     color: #111;
 }
 
-.register-subheading {
+.login-subheading {
     font-weight: 600;
     margin-bottom: 2rem;
     color: #222;
 }
 
-.register-form {
+.login-form {
     display: flex;
     flex-direction: column;
     width: 340px;
 }
 
-.register-form input {
-    margin-bottom: 1rem;
-    padding: 14px;
+.login-form input {
+    margin-bottom: 1.2rem;
+    padding: 16px;
     border: none;
     border-radius: 8px;
-    background: #f2f2f2;
-    font-size: 1rem;
+    background: #ededed;
+    font-size: 1.1rem;
     outline: none;
     transition: box-shadow 0.3s;
 }
 
-.register-form input:focus {
+.login-form input:focus {
     box-shadow: 0 0 0 2px #25469e33;
 }
 
-.register-btn {
-    padding: 16px 0;
+.login-btn {
+    padding: 18px 0;
     background: #111;
     color: #fff;
     border: none;
     border-radius: 8px;
-    font-size: 1.2rem;
+    font-size: 1.35rem;
     font-weight: 700;
     cursor: pointer;
     transition: background 0.2s;
+    margin-bottom: 1.5rem;
 }
 
-.register-btn:hover {
+.login-btn:hover {
     background: #25469e;
+}
+
+.login-links {
+    width: 340px;
+    text-align: center;
+    font-size: 0.98rem;
+}
+
+.forgot-password {
+    margin-bottom: 1.2rem;
+}
+
+.forgot-password a {
+    color: #25469e;
+    text-decoration: underline;
+    font-size: 0.98rem;
+}
+
+.register-link {
+    color: #111;
+}
+
+.register-link a {
+    color: #25469e;
+    text-decoration: underline;
+    font-size: 0.98rem;
 }
