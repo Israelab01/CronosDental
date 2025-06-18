@@ -1,0 +1,348 @@
+/* === VARIABLES === */
+:root {
+    --primary-color: #23408e;
+    --accent-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --light-bg: #f7f7f7;
+    --gray-bg: #ededed;
+    --text-dark: #111;
+    --text-light: #fff;
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    --border-radius: 16px;
+    --transition-fast: 0.2s;
+}
+
+/* === FONDO GENERAL === */
+.clients-bg {
+    min-height: 100vh;
+    width: 100vw;
+    font-family: "Inter", Arial, sans-serif;
+    display: flex;
+    background: rgba(255, 255, 255, 0.7);
+    position: relative;
+    overflow-x: hidden;
+}
+
+.clients-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.68);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+    width: 260px;
+    background: #fff8dc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+}
+
+.sidebar-logo {
+    background: var(--primary-color);
+    width: 100%;
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar-logo img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    object-fit: cover;
+    box-shadow: var(--shadow);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.sidebar-menu li {
+    padding: 18px 32px;
+    cursor: pointer;
+    color: var(--text-dark);
+    transition: var(--transition-fast);
+    font-weight: 500;
+    border-left: 6px solid transparent;
+}
+
+.sidebar-menu li:hover,
+.sidebar-menu li.active {
+    background: #e6eaff;
+    border-left-color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* === HEADER SUPERIOR (TOPBAR) === */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 260px;
+    width: calc(100% - 260px);
+    height: 90px;
+    background: var(--primary-color);
+    color: var(--text-light);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around; 
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    z-index: 10;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    font-size: 1.1rem;
+}
+
+.topbar span {
+    cursor: pointer;
+    transition: color var(--transition-fast);
+    font-size: 1.07rem;
+    font-weight: 500;
+    opacity: 0.95;
+    margin: 3px 0;
+    text-decoration: none;
+}
+
+.topbar .active {
+    text-decoration: none;
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+.topbar span:hover {
+    color: var(--accent-color);
+}
+
+/* === PANELES === */
+.clients-panels,
+.orders-panels {
+    margin-top: 120px;
+    margin-left: 260px;
+    padding: 20px;
+    display: flex;
+    flex-direction: row; 
+    justify-content: center; 
+    align-items: flex-start;
+    gap: 40px; 
+    z-index: 2;
+}
+
+.panel {
+    background: var(--light-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 470px;
+    min-width: 320px; 
+    padding-bottom: 18px;
+    overflow: hidden;
+    flex: 1;
+}
+
+/* Panel Header */
+.panel-header {
+    background: #3290fa;
+    color: var(--text-light);
+    font-size: 1.15rem;
+    font-weight: bold;
+    padding: 16px 18px;
+    border-top-left-radius: var(--border-radius);  
+    border-top-right-radius: var(--border-radius);
+}
+
+/* Panel Subheader */
+.panel-subheader {
+    background: var(--gray-bg);
+    padding: 8px 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid #ccc;
+}
+
+.edit-icon {
+    font-size: 1.1rem;
+}
+
+.delete-icon {
+    font-size: 1rem;
+    color: var(--danger-color);
+}
+
+/* Panel Body */
+.panel-body {
+    padding: 18px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* === FORMULARIOS COMPACTOS PARA PEDIDOS === */
+.form-md {
+    max-width: 470px;
+    margin: 24px auto;
+    padding: 12px 12px;
+}
+
+.input.input-md,
+select.input-md {
+    width: 100%;
+    font-size: 1rem;
+    padding: 8px 10px;
+    margin: 10px 0;
+    border-radius: 7px;
+    border: 1.2px solid #c0c0c0;
+    box-sizing: border-box;
+    background: var(--gray-bg);
+}
+
+.input.input-md:focus,
+select.input-md:focus {
+    border-color: var(--accent-color);
+    outline: none;
+}
+
+/* === INPUTS Y FORM === */
+.input {
+    padding: 7px 10px;
+    background: var(--gray-bg);
+    border: none;
+    border-bottom: 2px solid var(--accent-color);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.input:focus {
+    border-bottom-color: #27ae60;
+}
+
+.input:disabled {
+    color: #999;
+}
+
+/* === BOTONES === */
+.add-btn,
+.edit-btn,
+.delete-btn {
+    padding: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    color: var(--text-light);
+    width: 100%;
+    margin-top: 8px;
+}
+
+.add-btn {
+    background: var(--accent-color);
+}
+
+.add-btn:hover {
+    background: #27ae60;
+}
+
+.edit-btn {
+    background: #3b78e7;
+}
+
+.edit-btn:hover {
+    background: #25469e;
+}
+
+.delete-btn {
+    background: var(--danger-color);
+}
+
+.delete-btn:hover {
+    background: #c0392b;
+}
+
+.btn-row {
+    display: flex;
+    gap: 10px;
+}
+
+/* Botones compactos */
+.btn-md {
+    font-size: 1rem;
+    padding: 8px 20px;
+    border-radius: 7px;
+    margin: 10px 6px 0 0;
+    min-width: 100px;
+}
+
+/* === TEXTO ADICIONAL === */
+.gray {
+    color: #888;
+    font-weight: normal;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 70px;
+    }
+
+    .sidebar-logo img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .sidebar-menu li {
+        font-size: 0;
+        padding: 18px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .topbar {
+        left: 70px;
+        width: calc(100% - 70px);
+        padding: 0 10px;
+    }
+
+    .clients-panels,
+    .orders-panels {
+        margin-left: 70px;
+        width: calc(100vw - 70px);
+    }
+}
+
+@media (max-width: 600px) {
+    .sidebar {
+        display: none;
+    }
+
+    .topbar {
+        left: 0;
+        height: 60px;
+        padding: 0 20px;
+        width: 100%;
+    }
+
+    .clients-panels,
+    .orders-panels {
+        margin-left: 0;
+        margin-top: 80px;
+        width: 100%;
+        padding: 0 8px;
+    }
+
+    .panel {
+        width: 100%;
+        min-width: 0;
+        max-width: 100vw;
+    }
+}
