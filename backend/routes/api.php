@@ -15,4 +15,5 @@ Route::options('{any}', function() {
 Route::apiResource('clinics', ClinicController::class);
 
 Route::get('/orders', [OrderController::class, 'index']);
+Route::apiResource('orders', OrderController::class);
 
