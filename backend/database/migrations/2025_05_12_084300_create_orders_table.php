@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
             $table->string('prosthesis_type');
-            $table->enum('status', ['pending'])->default('pending'); // Puedes ajustar más valores luego
+            $table->enum('status', ['pending', 'completed', 'production'])->default('pending');
             $table->date('delivery_date');
             $table->json('attachments')->nullable();
             $table->unsignedBigInteger('digital_signature')->nullable();
@@ -20,7 +20,6 @@ return new class extends Migration {
 
             $table->index('status');
         });
-
     }
 
     public function down(): void
