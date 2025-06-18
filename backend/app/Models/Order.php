@@ -11,7 +11,9 @@ class Order extends Model
 
     protected $fillable = [
         'client_id',
+        'clinic_name',
         'prosthesis_type',
+        'materials',
         'status',
         'delivery_date',
         'attachments',
