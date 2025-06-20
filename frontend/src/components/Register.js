@@ -1,46 +1,36 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Register.css";
 import axios from "axios";
 import logo from "../assets/logo.png";
 
 const Register = () => {
     const [formData, setFormData] = useState({
+        name: "",
         email: "",
         password: "",
         password_confirmation: "",
-        address: "",
-        name: "",
-        clinic: "",
-        phone: "",
     });
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-        const response = await axios.post(
-            "http://localhost:8000/api/register",
-            formData
-        );
-        alert("¡Registro exitoso!");
-        // Aquí puedes redirigir al login o limpiar el formulario
-    } catch (error) {
-        if (error.response) {
-            console.error('Error response:', error.response.data);
-            alert("Error en el registro: " + JSON.stringify(error.response.data));
-        } else if (error.request) {
-            console.error('Error request:', error.request);
-            alert("Error en el registro: No hay respuesta del servidor");
-        } else {
-            console.error('Error:', error.message);
-            alert("Error en el registro: " + error.message);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post("http://localhost:8000/api/register", formData);
+            alert("¡Registro exitoso!");
+            navigate("/login"); // Redirige a login
+        } catch (error) {
+            if (error.response) {
+                alert("Error en el registro: " + JSON.stringify(error.response.data.errors));
+            } else {
+                alert("Error en el registro: " + error.message);
+            }
         }
-    }
-};
-
+    };
 
     return (
         <div className="register-container">
@@ -52,10 +42,15 @@ const handleSubmit = async (e) => {
             </div>
             <div className="register-right">
                 <h1 className="register-heading">Registro de usuario</h1>
-                <p className="register-subheading">
-                    Introduce los siguientes datos
-                </p>
+                <p className="register-subheading">Introduce los siguientes datos</p>
                 <form className="register-form" onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Nombre completo"
+                        required
+                        onChange={handleChange}
+                    />
                     <input
                         type="email"
                         name="email"
@@ -74,34 +69,6 @@ const handleSubmit = async (e) => {
                         type="password"
                         name="password_confirmation"
                         placeholder="Repite la contraseña"
-                        required
-                        onChange={handleChange}
-                    />
-                    <input
-                        type="text"
-                        name="address"
-                        placeholder="Dirección"
-                        required
-                        onChange={handleChange}
-                    />
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="Nombre"
-                        required
-                        onChange={handleChange}
-                    />
-                    <input
-                        type="text"
-                        name="clinic"
-                        placeholder="Clínica"
-                        required
-                        onChange={handleChange}
-                    />
-                    <input
-                        type="tel"
-                        name="phone"
-                        placeholder="Teléfono"
                         required
                         onChange={handleChange}
                     />

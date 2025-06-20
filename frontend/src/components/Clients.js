@@ -1,76 +1,96 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import bgImg from "../assets/bg.png";
-import logo from "../assets/logo.png"; // Se importa el logo desde la ruta correcta
+import logo from "../assets/logo.png";
 import "./Clients.css";
+import { useAuth } from "../AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Clients = () => {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [clients, setClients] = useState([]);
-    const [searchClinic, setSearchClinic] = useState("");
+    const [searchClient, setSearchClient] = useState("");
     const [foundClient, setFoundClient] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editFields, setEditFields] = useState({
         id: null,
-        nombre: "",
+        name: "",
         email: "",
-        telefono: "",
-        direccion: "",
+        address: "",
+        phone: "",
+        clinic: "",
     });
 
     const [newClient, setNewClient] = useState({
-        nombre: "",
+        name: "",
         email: "",
-        telefono: "",
-        direccion: "",
+        address: "",
+        phone: "",
+        clinic: "",
     });
 
-    // Cargar clínicas al iniciar
+    // Función para manejar logout
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
+
     useEffect(() => {
-        const loadClinics = async () => {
+        const loadClients = async () => {
             try {
-                const response = await axios.get(
-                    "http://localhost:8000/api/clinics"
-                );
-                setClients(response.data);
+                const response = await axios.get("http://localhost:8000/api/clients", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                setClients(response.data.data);
             } catch (error) {
-                alert("Error cargando clínicas: " + error.message);
+                alert("Error cargando clientes: " + error.message);
             }
         };
-        loadClinics();
+        loadClients();
     }, []);
 
-    // Añadir clínica
     const handleAddClient = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post(
-                "http://localhost:8000/api/clinics",
-                newClient
+                "http://localhost:8000/api/clients",
+                newClient,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
             );
-            setClients([...clients, response.data]);
+            setClients(prevClients => [...prevClients, response.data]);
             setNewClient({
-                nombre: "",
+                name: "",
                 email: "",
-                telefono: "",
-                direccion: "",
+                address: "",
+                phone: "",
+                clinic: "",
             });
-            alert("Clínica añadida correctamente");
+            alert("Cliente añadido correctamente");
         } catch (error) {
             alert(
-                "Error al añadir clínica: " +
+                "Error al añadir cliente: " +
                     (error.response?.data?.errors || error.message)
             );
         }
     };
 
-    // Buscar clínica
     const handleSearchSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.get(
-                "http://localhost:8000/api/clinics",
+                "http://localhost:8000/api/clients",
                 {
-                    params: { search: searchClinic },
+                    params: { search: searchClient },
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
                 }
             );
             setFoundClient(response.data[0] || null);
@@ -81,18 +101,22 @@ const Clients = () => {
         }
     };
 
-    // Eliminar clínica
     const handleDelete = async () => {
         if (!foundClient) return;
-        if (window.confirm("¿Seguro que quieres eliminar esta clínica?")) {
+        if (window.confirm("¿Seguro que quieres eliminar este cliente?")) {
             try {
                 await axios.delete(
-                    `http://localhost:8000/api/clinics/${foundClient.id}`
+                    `http://localhost:8000/api/clients/${foundClient.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }
                 );
                 setClients(clients.filter((c) => c.id !== foundClient.id));
                 setFoundClient(null);
-                setSearchClinic("");
-                alert("Clínica eliminada correctamente");
+                setSearchClient("");
+                alert("Cliente eliminado correctamente");
             } catch (error) {
                 alert(
                     "Error al eliminar: " +
@@ -102,7 +126,6 @@ const Clients = () => {
         }
     };
 
-    // Editar clínica
     const handleEdit = () => {
         setIsEditing(true);
         setEditFields(foundClient);
@@ -112,31 +135,40 @@ const Clients = () => {
         setEditFields({ ...editFields, [e.target.name]: e.target.value });
     };
 
-    // Guardar cambios de edición (sin anidar formularios)
     const handleSave = async (e) => {
         e.preventDefault();
         try {
             if (!editFields.id) {
-                alert("Error: No hay ID de clínica.");
+                alert("Error: No hay ID de cliente.");
                 return;
             }
             const response = await axios.put(
-                `http://localhost:8000/api/clinics/${editFields.id}`,
+                `http://localhost:8000/api/clients/${editFields.id}`,
                 {
-                    nombre: editFields.nombre,
+                    name: editFields.name,
                     email: editFields.email,
-                    telefono: editFields.telefono,
-                    direccion: editFields.direccion,
+                    address: editFields.address,
+                    phone: editFields.phone,
+                    clinic: editFields.clinic,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
                 }
             );
-            // Recarga el listado completo de clínicas desde el backend
-            const updatedClinics = await axios.get(
-                "http://localhost:8000/api/clinics"
+            const updatedClients = await axios.get(
+                "http://localhost:8000/api/clients",
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
             );
-            setClients(updatedClinics.data);
+            setClients(updatedClients.data.data);
             setFoundClient(response.data);
             setIsEditing(false);
-            alert("¡Clínica actualizada!");
+            alert("¡Cliente actualizado!");
         } catch (error) {
             alert("Error: " + (error.response?.data?.errors || error.message));
         }
@@ -152,50 +184,51 @@ const Clients = () => {
                     <img src={logo} alt="Logo" />
                 </div>
                 <ul className="sidebar-menu">
-                    <li>Dashboard</li>
+                    <li onClick={() => navigate("/dashboard")}>Dashboard</li>
                     <li className="active">Clientes</li>
-                    <li>Pedidos</li>
-                    <li>Cerrar sesión</li>
+                    <li onClick={() => navigate("/orders")}>Pedidos</li>
+                    <li onClick={handleLogout} style={{ cursor: "pointer" }}>Cerrar sesión</li>
                 </ul>
             </div>
 
             <div className="topbar">
-                <span>Dashboard</span>
-                <span>Clientes</span>
-                <span>Pedidos</span>
-                <span>Cerrar sesión</span>
+                <span onClick={() => navigate("/dashboard")}>Dashboard</span>
+                <span className="active">Clientes</span>
+                <span onClick={() => navigate("/orders")}>Pedidos</span>
+                <span onClick={handleLogout} style={{ cursor: "pointer" }}>
+                    Cerrar sesión ({user?.name})
+                </span>
             </div>
 
             <div className="clients-panels">
                 {/* Panel de búsqueda */}
                 <form
-                    className="panel search-panel"
+                    className="panel search-panel form-md"
                     onSubmit={handleSearchSubmit}
                 >
                     <div className="panel-header blue">
-                        Buscar cliente por nombre de la clínica
+                        Buscar cliente por ID
                     </div>
                     <div className="panel-subheader">
                         <span className="edit-icon">📝</span>
                         <span className="edit-label">
-                            Editar o eliminar clínica
+                            Editar o eliminar cliente
                             <span className="delete-icon">🗑️</span>
                         </span>
                     </div>
                     <div className="panel-body">
                         <label>
-                            <b>Introduce el nombre:</b>
-                            <span className="gray"> Clínica</span>
+                            <b>Introduce el ID del cliente</b>
                         </label>
                         <input
-                            type="text"
-                            placeholder="Clínica"
-                            value={searchClinic}
-                            onChange={(e) => setSearchClinic(e.target.value)}
-                            className="input"
+                            type="number"
+                            placeholder="ID de cliente"
+                            value={searchClient}
+                            onChange={(e) => setSearchClient(e.target.value)}
+                            className="input input-md"
                             required
                         />
-                        <button className="add-btn" type="submit">
+                        <button className="add-btn btn-md" type="submit">
                             Buscar
                         </button>
 
@@ -203,39 +236,45 @@ const Clients = () => {
                             <div className="search-result">
                                 <input
                                     type="text"
-                                    value={foundClient.nombre}
-                                    className="input"
-                                    disabled
-                                />
-                                <input
-                                    type="email"
-                                    value={foundClient.email}
-                                    className="input"
-                                    disabled
-                                />
-                                <input
-                                    type="tel"
-                                    value={foundClient.telefono}
-                                    className="input"
+                                    value={foundClient.name}
+                                    className="input input-md"
                                     disabled
                                 />
                                 <input
                                     type="text"
-                                    value={foundClient.direccion}
-                                    className="input"
+                                    value={foundClient.email}
+                                    className="input input-md"
+                                    disabled
+                                />
+                                <input
+                                    type="text"
+                                    value={foundClient.address}
+                                    className="input input-md"
+                                    disabled
+                                />
+                                <input
+                                    type="text"
+                                    value={foundClient.phone}
+                                    className="input input-md"
+                                    disabled
+                                />
+                                <input
+                                    type="text"
+                                    value={foundClient.clinic}
+                                    className="input input-md"
                                     disabled
                                 />
                                 <div className="btn-row">
                                     <button
                                         type="button"
-                                        className="edit-btn"
+                                        className="edit-btn btn-md"
                                         onClick={handleEdit}
                                     >
                                         Editar
                                     </button>
                                     <button
                                         type="button"
-                                        className="delete-btn"
+                                        className="delete-btn btn-md"
                                         onClick={handleDelete}
                                     >
                                         Eliminar
@@ -248,10 +287,10 @@ const Clients = () => {
                             <div className="search-result">
                                 <input
                                     type="text"
-                                    name="nombre"
-                                    value={editFields.nombre}
+                                    name="name"
+                                    value={editFields.name}
                                     onChange={handleEditFieldChange}
-                                    className="input"
+                                    className="input input-md"
                                     required
                                 />
                                 <input
@@ -259,36 +298,44 @@ const Clients = () => {
                                     name="email"
                                     value={editFields.email}
                                     onChange={handleEditFieldChange}
-                                    className="input"
-                                    required
-                                />
-                                <input
-                                    type="tel"
-                                    name="telefono"
-                                    value={editFields.telefono}
-                                    onChange={handleEditFieldChange}
-                                    className="input"
+                                    className="input input-md"
                                     required
                                 />
                                 <input
                                     type="text"
-                                    name="direccion"
-                                    value={editFields.direccion}
+                                    name="address"
+                                    value={editFields.address}
                                     onChange={handleEditFieldChange}
-                                    className="input"
+                                    className="input input-md"
+                                    required
+                                />
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    value={editFields.phone}
+                                    onChange={handleEditFieldChange}
+                                    className="input input-md"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="clinic"
+                                    value={editFields.clinic}
+                                    onChange={handleEditFieldChange}
+                                    className="input input-md"
                                     required
                                 />
                                 <div className="btn-row">
                                     <button
                                         type="button"
-                                        className="add-btn"
+                                        className="add-btn btn-md"
                                         onClick={handleSave}
                                     >
                                         Guardar
                                     </button>
                                     <button
                                         type="button"
-                                        className="delete-btn"
+                                        className="delete-btn btn-md"
                                         onClick={() => setIsEditing(false)}
                                     >
                                         Cancelar
@@ -297,32 +344,29 @@ const Clients = () => {
                             </div>
                         )}
 
-                        {foundClient === null && searchClinic && (
+                        {foundClient === null && searchClient && (
                             <div style={{ color: "red", marginTop: "10px" }}>
-                                No se encontró la clínica.
+                                No se encontró el cliente.
                             </div>
                         )}
                     </div>
                 </form>
 
-                {/* Panel de añadir clínica */}
-                <form className="panel add-panel" onSubmit={handleAddClient}>
+                {/* Panel de añadir cliente */}
+                <form className="panel add-panel form-md" onSubmit={handleAddClient}>
                     <div className="panel-header blue">
-                        Añadir nueva clínica
+                        Añadir nuevo cliente
                     </div>
                     <div className="panel-body">
                         <input
                             type="text"
-                            name="nombre"
-                            placeholder="Nombre de la clínica"
-                            value={newClient.nombre}
-                            onChange={(e) =>
-                                setNewClient({
-                                    ...newClient,
-                                    nombre: e.target.value,
-                                })
+                            name="name"
+                            placeholder="Nombre"
+                            value={newClient.name}
+                            onChange={e =>
+                                setNewClient({ ...newClient, name: e.target.value })
                             }
-                            className="input"
+                            className="input input-md"
                             required
                         />
                         <input
@@ -330,44 +374,46 @@ const Clients = () => {
                             name="email"
                             placeholder="Email"
                             value={newClient.email}
-                            onChange={(e) =>
-                                setNewClient({
-                                    ...newClient,
-                                    email: e.target.value,
-                                })
+                            onChange={e =>
+                                setNewClient({ ...newClient, email: e.target.value })
                             }
-                            className="input"
-                            required
-                        />
-                        <input
-                            type="tel"
-                            name="telefono"
-                            placeholder="Teléfono"
-                            value={newClient.telefono}
-                            onChange={(e) =>
-                                setNewClient({
-                                    ...newClient,
-                                    telefono: e.target.value,
-                                })
-                            }
-                            className="input"
+                            className="input input-md"
                             required
                         />
                         <input
                             type="text"
-                            name="direccion"
+                            name="address"
                             placeholder="Dirección"
-                            value={newClient.direccion}
-                            onChange={(e) =>
-                                setNewClient({
-                                    ...newClient,
-                                    direccion: e.target.value,
-                                })
+                            value={newClient.address}
+                            onChange={e =>
+                                setNewClient({ ...newClient, address: e.target.value })
                             }
-                            className="input"
+                            className="input input-md"
                             required
                         />
-                        <button className="add-btn" type="submit">
+                        <input
+                            type="tel"
+                            name="phone"
+                            placeholder="Teléfono"
+                            value={newClient.phone}
+                            onChange={e =>
+                                setNewClient({ ...newClient, phone: e.target.value })
+                            }
+                            className="input input-md"
+                            required
+                        />
+                        <input
+                            type="text"
+                            name="clinic"
+                            placeholder="Clínica"
+                            value={newClient.clinic}
+                            onChange={e =>
+                                setNewClient({ ...newClient, clinic: e.target.value })
+                            }
+                            className="input input-md"
+                            required
+                        />
+                        <button className="add-btn btn-md" type="submit">
                             Añadir
                         </button>
                     </div>

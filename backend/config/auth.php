@@ -2,27 +2,31 @@
 
 return [
     'defaults' => [
-        'guard' => 'web',
-        'passwords' => 'clients',
+        'guard' => 'api',
+        'passwords' => 'users',
     ],
 
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'clients', // Usamos el provider 'clients'
+            'provider' => 'users',
+        ],
+        'api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
         ],
     ],
 
     'providers' => [
-        'clients' => [
+        'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Client::class, // Modelo Client (tabla clients)
+            'model' => App\Models\User::class,
         ],
     ],
 
     'passwords' => [
-        'clients' => [
-            'provider' => 'clients',
+        'users' => [
+            'provider' => 'users',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,

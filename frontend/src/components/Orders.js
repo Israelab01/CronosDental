@@ -3,8 +3,12 @@ import axios from "axios";
 import bgImg from "../assets/bg.png";
 import logo from "../assets/logo.png";
 import "./Orders.css";
+import { useAuth } from "../AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Orders = () => {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [searchOrder, setSearchOrder] = useState("");
     const [foundOrder, setFoundOrder] = useState(null);
@@ -26,11 +30,20 @@ const Orders = () => {
         delivery_date: "",
     });
 
+    // Función para manejar logout
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
+
     useEffect(() => {
         const loadOrders = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/api/orders");
-                // Laravel paginate() devuelve { data: [...], ... }
+                const response = await axios.get("http://localhost:8000/api/orders", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
                 setOrders(response.data.data);
             } catch (error) {
                 alert("Error cargando pedidos: " + error.message);
@@ -44,7 +57,12 @@ const Orders = () => {
         try {
             const response = await axios.post(
                 "http://localhost:8000/api/orders",
-                newOrder
+                newOrder,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
             );
             setOrders(prevOrders => [...prevOrders, response.data]);
             setNewOrder({
@@ -70,6 +88,9 @@ const Orders = () => {
                 "http://localhost:8000/api/orders",
                 {
                     params: { search: searchOrder },
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
                 }
             );
             setFoundOrder(response.data[0] || null);
@@ -85,7 +106,12 @@ const Orders = () => {
         if (window.confirm("¿Seguro que quieres eliminar este pedido?")) {
             try {
                 await axios.delete(
-                    `http://localhost:8000/api/orders/${foundOrder.id}`
+                    `http://localhost:8000/api/orders/${foundOrder.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }
                 );
                 setOrders(orders.filter((o) => o.id !== foundOrder.id));
                 setFoundOrder(null);
@@ -124,11 +150,20 @@ const Orders = () => {
                     materials: editFields.materials,
                     status: editFields.status,
                     delivery_date: editFields.delivery_date,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
                 }
             );
-            // Recarga el listado completo de pedidos desde el backend
             const updatedOrders = await axios.get(
-                "http://localhost:8000/api/orders"
+                "http://localhost:8000/api/orders",
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
             );
             setOrders(updatedOrders.data.data);
             setFoundOrder(response.data);
@@ -149,18 +184,20 @@ const Orders = () => {
                     <img src={logo} alt="Logo" />
                 </div>
                 <ul className="sidebar-menu">
-                    <li>Dashboard</li>
-                    <li>Clientes</li>
+                    <li onClick={() => navigate("/dashboard")}>Dashboard</li>
+                    <li onClick={() => navigate("/clients")}>Clientes</li>
                     <li className="active">Pedidos</li>
-                    <li>Cerrar sesión</li>
+                    <li onClick={handleLogout} style={{ cursor: "pointer" }}>Cerrar sesión</li>
                 </ul>
             </div>
 
             <div className="topbar">
-                <span>Dashboard</span>
-                <span>Clientes</span>
+                <span onClick={() => navigate("/dashboard")}>Dashboard</span>
+                <span onClick={() => navigate("/clients")}>Clientes</span>
                 <span className="active">Pedidos</span>
-                <span>Cerrar sesión</span>
+                <span onClick={handleLogout} style={{ cursor: "pointer" }}>
+                    Cerrar sesión ({user?.name})
+                </span>
             </div>
 
             <div className="clients-panels orders-panels">
