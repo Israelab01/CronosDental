@@ -70,7 +70,7 @@ npm test
 - El backend expone la API en `http://localhost:8000/api/`
 - El frontend consume la API en `http://localhost:8000/api/`
 - Base de datos: MySQL (o MariaDB)
-- No es necesario cambiar de rama para ninguna funcionalidad: todo el flujo está en la rama principal (`dev` o `main`).
+- No es necesario cambiar de rama para ninguna funcionalidad: todo el flujo está en la rama principal (`dev`).
 - Si tienes algún problema con dependencias de PHP, asegúrate de tener habilitadas todas las extensiones requeridas en tu `php.ini`.
 
 ---
